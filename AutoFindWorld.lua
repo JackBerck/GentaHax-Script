@@ -20,24 +20,24 @@ function generateRandomName(length)
 end
 
 -- ========================================================
--- 1. INFORMASI UI VIA CONSOLE
+-- 1. UI INFORMATION VIA CONSOLE
 -- ========================================================
 logToConsole("=========================================")
 logToConsole("`2AUTO WORLD FINDER`o by Jakjul")
-logToConsole("Fitur: Lag Handler (Door Check) & Smart Skip")
-logToConsole("`4PENTING:`o Buka menu STORE untuk MULAI pertama kali.")
-logToConsole("Setelah mulai, buka STORE lagi untuk PAUSE/RESUME.")
+logToConsole("Feature: Lag Handler (Door Check) & Smart Skip")
+logToConsole("`4IMPORTANT:`o Open STORE menu to START for the first time.")
+logToConsole("After starting, open STORE again to PAUSE/RESUME.")
 logToConsole("=========================================")
-doToast(1, 5000, "Script Siap! Tekan STORE untuk MULAI.")
+doToast(1, 5000, "Script Ready! Press STORE to START.")
 
 -- ========================================================
--- 2. HOOK: KONTROL UTAMA
+-- 2. HOOK: MAIN CONTROL
 -- ========================================================
 AddHook("OnTextPacket", "MainControllerHook", function(flag, packet)
     if packet:find("action|store") then
         if not hasStartedOnce then
             hasStartedOnce = true
-            doToast(1, 3000, "Auto Finder by Jakjul - Dimulai!")
+            doToast(1, 3000, "Auto Finder by Jakjul - Started!")
             
             runThread(function()
                 startFindingWorlds()
@@ -46,10 +46,10 @@ AddHook("OnTextPacket", "MainControllerHook", function(flag, packet)
             isPaused = not isPaused
             if isPaused then
                 callToast("Auto Finder: PAUSED", 1)
-                logToConsole("`4[PAUSE] Auto Finder dijeda.``")
+                logToConsole("`4[PAUSE] Auto Finder paused.``")
             else
                 callToast("Auto Finder: RESUMED", 1)
-                logToConsole("`2[RESUME] Auto Finder dilanjutkan.``")
+                logToConsole("`2[RESUME] Auto Finder resumed.``")
             end
         end
         return true 
@@ -57,7 +57,7 @@ AddHook("OnTextPacket", "MainControllerHook", function(flag, packet)
 end)
 
 -- ========================================================
--- 3. HOOK: PENDETEKSI SERVER REJECTION
+-- 3. HOOK: SERVER REJECTION DETECTOR
 -- ========================================================
 AddHook("OnVarlist", "ServerRejectionHook", function(varlist, netID)
     if not hasStartedOnce then return end
@@ -66,19 +66,19 @@ AddHook("OnVarlist", "ServerRejectionHook", function(varlist, netID)
     if command == "OnConsoleMessage" then
         local msg = tostring(varlist[1]):lower()
         if msg:find("inaccessible") or msg:find("level") or msg:find("too low") or msg:find("can't enter") or msg:find("restricted") then
-            logToConsole("`4[SKIP] World terkunci/inaccessible. Langsung ganti!``")
+            logToConsole("`4[SKIP] World is locked/inaccessible. Skipping!``")
             skipCurrentWorld = true
         end
     end
 end)
 
 -- ========================================================
--- 4. FUNGSI UTAMA PENCARIAN WORLD
+-- 4. MAIN WORLD SEARCH FUNCTION
 -- ========================================================
 function startFindingWorlds()
-    local limit = 100 -- Jumlah percobaan masuk world
-    local delayMs = 10000 -- Waktu tunggu di DALAM world (10 Detik)
-    local maxLoadingTime = 30000 -- Maksimal nunggu loading map (30 detik)
+    local limit = 100 -- Number of world join attempts
+    local delayMs = 10000 -- Wait time INSIDE the world (10 seconds)
+    local maxLoadingTime = 30000 -- Maximum wait for map loading (30 seconds)
 
     for i = 1, limit do
         while isPaused do
@@ -88,13 +88,13 @@ function startFindingWorlds()
         local nameLength = math.random(4, 5)
         local targetWorld = generateRandomName(nameLength)
 
-        logToConsole("`w[" .. i .. "/" .. limit .. "] Mencoba: `2" .. targetWorld .. "``")
+        logToConsole("`w[" .. i .. "/" .. limit .. "] Trying: `2" .. targetWorld .. "``")
         sendPacket(3, "action|join_request\nname|" .. targetWorld)
 
         skipCurrentWorld = false 
         
         -- ====================================================
-        -- FASE 1: POLLING WHITE DOOR (LOADING HANDLER)
+        -- PHASE 1: POLLING WHITE DOOR (LOADING HANDLER)
         -- ====================================================
         local isLoaded = false
         local loadingTime = 0
@@ -126,10 +126,10 @@ function startFindingWorlds()
         end
 
         -- ====================================================
-        -- FASE 2: COUNTDOWN DI DALAM WORLD
+        -- PHASE 2: COUNTDOWN INSIDE THE WORLD
         -- ====================================================
         if isLoaded then
-            logToConsole("`9[+] Berhasil masuk ke " .. targetWorld .. ". Pantauan 10 detik.``")
+            logToConsole("`9[+] Successfully entered " .. targetWorld .. ". Monitoring for 10 seconds.``")
             local elapsed = 0
             while elapsed < delayMs do
                 if skipCurrentWorld then break end
@@ -143,11 +143,11 @@ function startFindingWorlds()
             end
         else
             if not skipCurrentWorld then
-                logToConsole("`4[-] Lag parah/Timeout di " .. targetWorld .. ". Skip ke world selanjutnya.``")
+                logToConsole("`4[-] Severe lag/Timeout at " .. targetWorld .. ". Skipping to next world.``")
             end
         end
     end
 
     hasStartedOnce = false
-    doToast(1, 3000, "Auto Finder Selesai! - by Jakjul")
+    doToast(1, 3000, "Auto Finder Finished! - by Jakjul")
 end

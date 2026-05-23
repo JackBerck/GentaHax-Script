@@ -1,6 +1,6 @@
--- Script ini dibuat untuk mengurangi crash saat load script yang berat di Genta Android. Dengan memisahkan script utama ke dalam file terpisah sehingga bisa mengurangi beban saat load dan menghindari crash.
+-- This script is made to reduce crashes when loading heavy scripts in Genta Android. By separating the main script into a different file, it helps reduce the load and avoid crashes.
 
-Name = "GANTI NAMA" -- Ganti dengan nama file script utama kamu (contoh: "MainScript.lua")
+Name = "CHANGE NAME" -- Change to your main script file name (example: "MainScript.lua")
 
 Script = io.input("/storage/emulated/0/Android/media/GENTAHAX/Script/" ..Name):read("*a")
 load(Script)()
